@@ -35,13 +35,17 @@ RUN cd /usr/src/fonts && npm install && node ./generate.js && ls -l ./_output
 FROM node:10-buster-slim AS final
 
 RUN export DEBIAN_FRONTEND=noninteractive \
+  && echo "deb http://deb.debian.org/debian buster-backports main" >> /etc/apt/sources.list \
+  && echo " deb-src http://deb.debian.org/debian buster-backports main" >> /etc/apt/sources.list \
   && apt-get -qq update \
-  && apt-get upgrade \
+  && apt-get -y upgrade \
   && apt-get -y --no-install-recommends install \
+      xauth \
+      jq \
+  && apt-get -y --no-install-recommends -t buster-backports install \
       libgles2-mesa \
       libegl1 \
       xvfb \
-      xauth \
   && apt-get -y --purge autoremove \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
