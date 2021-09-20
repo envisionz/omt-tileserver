@@ -43,9 +43,9 @@ RUN export DEBIAN_FRONTEND=noninteractive \
       xauth \
       jq \
   && apt-get -y --no-install-recommends -t buster-backports install \
-      libgles2-mesa \
-      libegl1 \
-      xvfb \
+    libgles2-mesa \
+    libegl1 \
+    xvfb \
   && apt-get -y --purge autoremove \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
@@ -56,13 +56,19 @@ ENV NODE_ENV="production"
 ENV CHOKIDAR_USEPOLLING=1
 ENV CHOKIDAR_INTERVAL=500
 
-VOLUME /data
+COPY --chown=node:node --from=builder /usr/src/fonts/_output /data/fonts
+COPY --chown=node:node ./styles /data/styles
+COPY --chown=node:node ./config.json /data/config.json
+RUN mkdir -p /data/sprites
+
+COPY --chown=node:node ./entrypoint.sh /omt-tileserver-entrypoint.sh
+
 WORKDIR /data
 
 EXPOSE 8080
 
 USER node:node
 
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
+ENTRYPOINT ["/omt-tileserver-entrypoint.sh"]
 
 CMD ["-p", "8080"]

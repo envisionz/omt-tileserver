@@ -1,0 +1,54 @@
+{
+    "options": {
+      "paths": {
+        "root": "",
+        "fonts": "fonts",
+        "sprites": "sprites",
+        "styles": "styles",
+        "mbtiles": ""
+      },
+      "domains": [
+        "localhost:8080",
+        "127.0.0.1:8080"
+      ],
+      "formatQuality": {
+        "jpeg": 80,
+        "webp": 90
+      },
+      "maxScaleFactor": 3,
+      "maxSize": 2048,
+      "pbfAlias": "pbf",
+      "serveAllFonts": false,
+      "serveAllStyles": false,
+      "minRendererPoolSizes": [6, 4, 2],
+      "maxRendererPoolSizes": [6, 4, 2],
+      "serveStaticMaps": true,
+      "tileMargin": 0
+    },
+    "styles": {
+      "bright": {
+          "style": "osm-bright-gl-style/style-local.json",
+          "serve_rendered": true
+      },
+      "basic": {
+          "style": "maptiler-basic-gl-style/style-local.json",
+          "serve_rendered": true
+      },
+      "terrain": {
+          "style": "maptiler-terrain-gl-style/style-local.json",
+          "serve_rendered": false
+      },
+      "dark-matter": {
+          "style": "dark-matter-gl-style/style-local.json",
+          "serve_rendered": false
+      },
+      "positron": {
+          "style": "positron-gl-style/style-local.json",
+          "serve_rendered": false
+      },
+      "liberty": {
+          "style": "osm-liberty/style.json",
+          "serve_rendered": false
+      }
+    }
+  }
