@@ -71,4 +71,4 @@ USER node:node
 
 ENTRYPOINT ["/omt-tileserver-entrypoint.sh"]
 
-CMD ["-p", "8080"]
+CMD ["-p", "8080", "-c", "/data/config.json"]
