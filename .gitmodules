@@ -9,3 +9,7 @@
 	path = tileserver/styles/osm-bright-gl-style
 	url = https://github.com/openmaptiles/osm-bright-gl-style.git
 	branch = gh-pages
+[submodule "tileserver/styles/positron-gl-style"]
+	path = tileserver/styles/positron-gl-style
+	url = https://github.com/openmaptiles/positron-gl-style.git
+	branch = gh-pages
