@@ -1,0 +1,30 @@
+version: 3
+
+volumes:
+  omt-tileserver-pgdata:
+    external: true
+
+networks:
+  db:
+  tileservers:
+  web:
+
+services:
+  omt-postgres:
+    image: "openmaptiles/postgis:5.3"
+    volumes:
+      - omt-tileserver-pgdata:/var/lib/postgresql/data
+    networks:
+      - db
+
+  postserve:
+    image: "openmaptiles/openmaptiles-tools:5.3"
+    command: "postserve ${TILESET_FILE} --verbose --serve=http://omt-postgres:8080" --port 8080
+    env_file: .env
+    environment:
+      TILESET_FILE: ${TILESET_FILE}
+
+    networks:
+      - db
+      - tileservers
+  
