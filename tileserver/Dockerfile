@@ -28,6 +28,9 @@ ENV NODE_ENV="production"
 
 RUN cd /usr/src/app && npm install --production
 
+COPY fonts /usr/src/fonts
+
+RUN cd /usr/src/fonts && npm install && node ./generate.js && ls -l ./_output
 
 FROM node:10-buster-slim AS final
 
