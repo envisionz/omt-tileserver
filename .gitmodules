@@ -5,3 +5,7 @@
 	path = tileserver/styles/maptiler-basic-gl-style
 	url = https://github.com/openmaptiles/maptiler-basic-gl-style.git
 	branch = gh-pages
+[submodule "tileserver/styles/osm-bright-gl-style"]
+	path = tileserver/styles/osm-bright-gl-style
+	url = https://github.com/openmaptiles/osm-bright-gl-style.git
+	branch = gh-pages
