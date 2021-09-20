@@ -1,3 +1,7 @@
 [submodule "openmaptiles"]
 	path = openmaptiles
 	url = https://github.com/openmaptiles/openmaptiles.git
+[submodule "tileserver/styles/maptiler-basic-gl-style"]
+	path = tileserver/styles/maptiler-basic-gl-style
+	url = https://github.com/openmaptiles/maptiler-basic-gl-style.git
+	branch = gh-pages
