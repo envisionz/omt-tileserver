@@ -2,6 +2,9 @@
 
 set -e
 
+compose_file=docker-compose.yml
+compose_file_orig="${compose_file}.orig"
+
 printl()
 {
     printf "%s\n" "$1"
@@ -9,10 +12,10 @@ printl()
 
 restore_compose_file()
 {
-    if [ -f docker-compose.yml.orig ]; then
-        rm -f docker-compose.yml
-        cp docker-compose.yml.orig docker-compose.yml
-        rm -f docker-compose.yml.orig
+    if [ -f "$compose_file_orig" ]; then
+        rm -f "$compose_file"
+        cp "$compose_file_orig" "$compose_file"
+        rm -f "$compose_file_orig"
     fi
 }
 
@@ -36,9 +39,9 @@ cd openmaptiles
 
 restore_compose_file
 
-cp docker-compose.yml docker-compose.yml.orig
-sed -i -e 's/pgdata:/pgdata:'"\\${nl}"'    external: true/' docker-compose.yml
-sed -i -e 's/pgdata:/omt-tileserver-pgdata:/g' docker-compose.yml
+cp "$compose_file" "$compose_file_orig"
+sed -i -e 's/pgdata:/pgdata:'"\\${nl}"'    external: true/' "$compose_file"
+sed -i -e 's/pgdata:/omt-tileserver-pgdata:/g' "$compose_file"
 
 # Create 'omt-tileserver-pgdata' volume if it doesn't exist
 if ! docker volume ls | grep -q omt-tileserver-pgdata; then
