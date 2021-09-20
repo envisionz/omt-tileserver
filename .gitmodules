@@ -17,3 +17,7 @@
 	path = tileserver/styles/dark-matter-gl-style
 	url = https://github.com/openmaptiles/dark-matter-gl-style.git
 	branch = gh-pages
+[submodule "tileserver/styles/maptiler-terrain-gl-style"]
+	path = tileserver/styles/maptiler-terrain-gl-style
+	url = https://github.com/openmaptiles/maptiler-terrain-gl-style.git
+	branch = gh-pages
