@@ -13,3 +13,7 @@
 	path = tileserver/styles/positron-gl-style
 	url = https://github.com/openmaptiles/positron-gl-style.git
 	branch = gh-pages
+[submodule "tileserver/styles/dark-matter-gl-style"]
+	path = tileserver/styles/dark-matter-gl-style
+	url = https://github.com/openmaptiles/dark-matter-gl-style.git
+	branch = gh-pages
