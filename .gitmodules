@@ -25,3 +25,7 @@
 	path = tileserver/styles/osm-liberty
 	url = https://github.com/maputnik/osm-liberty.git
 	branch = gh-pages
+[submodule "tileserver/fonts"]
+	path = tileserver/fonts
+	url = https://github.com/openmaptiles/fonts.git
+	branch = gh-pages
