@@ -21,3 +21,7 @@
 	path = tileserver/styles/maptiler-terrain-gl-style
 	url = https://github.com/openmaptiles/maptiler-terrain-gl-style.git
 	branch = gh-pages
+[submodule "tileserver/styles/osm-liberty"]
+	path = tileserver/styles/osm-liberty
+	url = https://github.com/maputnik/osm-liberty.git
+	branch = gh-pages
