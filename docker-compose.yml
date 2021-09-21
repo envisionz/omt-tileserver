@@ -1,8 +1,9 @@
 version: "3"
 
 volumes:
-  omt-tileserver-pgdata:
+  pgdata:
     external: true
+    name: omt-tileserver-pgdata
 
 networks:
   db:
@@ -13,7 +14,7 @@ services:
   omt-postgres:
     image: "openmaptiles/postgis:5.3"
     volumes:
-      - omt-tileserver-pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
     networks:
       - db
 

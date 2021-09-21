@@ -39,9 +39,7 @@ cd openmaptiles
 
 restore_compose_file
 
-cp "$compose_file" "$compose_file_orig"
-sed -i -e 's/volumes:'"\\${nl}"'  pgdata:/volumes:'"\\${nl}"'  pgdata:'"\\${nl}"'    external: true/' "$compose_file"
-sed -i -e 's/pgdata:/omt-tileserver-pgdata:/g' "$compose_file"
+cp "$compose_file" "$compose_file_orig" && rm "$compose_file" && cp ../omt-dc.yml "$compose_file"
 
 # Start with a clean slate
 printl "Running 'make clean'..."
