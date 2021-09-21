@@ -32,11 +32,19 @@ services:
     networks:
       - db
       - tileservers
-
+  
   tileserver:
     image: envisionz/tileserver
     environment:
       POSTSERVE_HOST: http://postserve:8080
     networks:
       - tileservers
-  
+
+  cache:
+    image: envisionz/varnish
+    environment:
+      VARNISH_SIZE: 1G
+    ports:
+      - "127.0.0.1:8080:80"
+    networks:
+      - tileservers
