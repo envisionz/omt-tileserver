@@ -45,6 +45,6 @@ services:
     environment:
       VARNISH_SIZE: 1G
     ports:
-      - "127.0.0.1:8080:80"
+      - "127.0.0.1:8181:80"
     networks:
       - tileservers
