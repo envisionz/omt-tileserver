@@ -20,12 +20,23 @@ services:
 
   postserve:
     image: "openmaptiles/openmaptiles-tools:5.3"
-    command: "postserve ${TILESET_FILE} --verbose --serve=http://omt-postgres:8080" --port 8080
-    env_file: .env
+    command: "postserve /omt-layers/openmaptiles.yaml --verbose --serve=http://postserve:8080 --port 8080"
     environment:
-      TILESET_FILE: ${TILESET_FILE}
-
+      PGDATABASE: openmaptiles
+      PGUSER: openmaptiles
+      PGPASSWORD: openmaptiles
+      PGHOST: omt-postgres
+      PGPORT: 5432
+    volumes:
+      - ./openmaptiles:/omt-layers
     networks:
       - db
+      - tileservers
+
+  tileserver:
+    image: envisionz/tileserver
+    environment:
+      POSTSERVE_HOST: http://postserve:8080
+    networks:
       - tileservers
   
