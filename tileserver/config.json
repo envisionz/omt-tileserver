@@ -8,8 +8,6 @@
       "mbtiles": ""
     },
     "domains": [
-      "localhost:8181",
-      "127.0.0.1:8181"
     ],
     "formatQuality": {
       "jpeg": 80,

@@ -37,6 +37,7 @@ services:
     image: envisionz/tileserver
     environment:
       POSTSERVE_HOST: http://postserve:8080
+      TILE_FORMAT: webp
     networks:
       - tileservers
 
