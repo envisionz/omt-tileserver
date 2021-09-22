@@ -68,6 +68,9 @@ make import-borders
 printl "Importing SQL..."
 make import-sql
 
+make stop-db
+docker-compose down postgres
+
 restore_compose_file
 
 cd -
