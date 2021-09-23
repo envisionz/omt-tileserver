@@ -7,12 +7,23 @@ backend tileserver {
   .port = "8080";
 }
 
+backend postserve {
+  .host = "postserve";
+  .port = "8080";
+}
+
 sub vcl_recv {
 
   unset req.http.cookie;
 
+  if (req.url ~ "/tiles/[0-9]+/[0-9]+/[0-9]+\.pbf") {
+    set req.backend_hint = postserve;
+  } else {
+    set req.backend_hint = tileserver;
+  }
+
   // Cache only tiles
-  if (req.url ~ "/styles/[0-9a-zA-Z_\-]+/[0-9]+/[0-9]+/[0-9]+") {
+  if (req.url ~ "/[0-9]+/[0-9]+/[0-9]+\.(webp|png|jpg|jpeg|pbf)") {
     return (hash);
   } else {
     return (pass);
