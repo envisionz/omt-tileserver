@@ -1,0 +1,77 @@
+#!/bin/bash
+
+# This script automatically downloads, imports and keeps an area updated.
+
+export DIFF_MODE=true
+
+printl()
+{
+    printf "%s\n" "$1"
+}
+
+import_osm_data()
+{
+    local area="$1"
+    local interval="$2"
+
+    local area_pbf="${PBF_DATA_DIR}/${area}.pbf"
+    local bbox="${PBF_DATA_DIR}/${area}.bbox"
+
+    export IMPOSM_CONFIG_FILE="${PBF_DATA_DIR}/${area}.repl.json"
+
+    printl "Downloading '${area}'"
+    download-osm geofabrik "$area" \
+        -o "$area_pbf" \
+        -b "$bbox" \
+        -j "$IMPOSM_CONFIG_FILE" \
+        -k "replication_interval=${interval}" || return 1
+
+    printl "Importing '${area}'"
+    import-osm "$area_pbf" || return 1
+    printl "Importing '${area}' successful"
+    printl "Importing borders"
+    import-borders import "$area_pbf" || return 1
+    printl "Importing borders successful"
+    printl "Importing SQL"
+    import-sql || return 1
+    printl "Importing SQL successful"
+    printl "Removing '${area_pbf}'"
+    rm -f "$area_pbf"
+    return 0
+}
+
+osm_updater()
+{
+    local area="$1"
+
+    export IMPOSM_CONFIG_FILE="${PBF_DATA_DIR}/${area}.repl.json"
+    import-update
+    return "$?"
+}
+
+import_status_file="/status/osm-import"
+ext_data_status_file="/status/data-import"
+
+dl_area="$ENVNZ_DL_AREA"
+update_interval="${ENVNZ_UPDATE_INTERVAL:-1h}"
+
+[ -z "$dl_area" ] && printl "ENVNZ_DL_AREA not set" && exit 1
+
+([ "$update_interval" != "1h" ] && [ "$update_interval" != "24h" ]) && printl "ENVNZ_UPDATE_INTERVAL must be 1h or 24h" && exit 1
+
+printl "Waiting for database to be ready before continuing"
+pgwait
+
+# Wait for another container to import external data before continuing
+printl "Waiting for 'import-data' process to complete if necessary"
+until [ -f "$ext_data_status_file" ]; do
+    sleep 2
+done
+
+if [ ! -f "$import_status_file" ]; then
+    printl "Downloading and importing data"
+    import_osm_data "$dl_area" "$update_interval" || exit 1
+    touch "$import_status_file"
+fi
+printl "Running 'import-update' to periodically update OSM data"
+osm_updater "$dl_area" || exit 1
