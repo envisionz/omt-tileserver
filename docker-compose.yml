@@ -8,11 +8,11 @@ volumes:
 networks:
   db:
   tileservers:
-  web:
 
 services:
-  omt-postgres:
+  postgres:
     image: "openmaptiles/postgis:5.3"
+    env_file: omt.env
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
@@ -20,24 +20,37 @@ services:
 
   postserve:
     image: "openmaptiles/openmaptiles-tools:5.3"
-    command: "postserve /omt-layers/openmaptiles.yaml --verbose --serve=http://postserve:8080 --port 8080"
-    environment:
-      PGDATABASE: openmaptiles
-      PGUSER: openmaptiles
-      PGPASSWORD: openmaptiles
-      PGHOST: omt-postgres
-      PGPORT: 5432
+    command: >
+      /bin/bash -c "pgwait && postserve /openmaptiles.yaml --verbose --serve=http://postserve:8080 --port 8080"
+    env_file: omt.env
     volumes:
-      - ./openmaptiles:/omt-layers
+      - ./openmaptiles:/tileset
     networks:
       - db
       - tileservers
   
+  osm-update:
+    image: "openmaptiles/openmaptiles-tools:5.3"
+    command: >
+      /bin/bash -c "export IMPOSM_CONFIG_FILE=$$(find ./data -name *repl.json | head -1)  
+      && pgwait 
+      && import-update"
+    env_file: omt.env
+    volumes:
+      - ./openmaptiles:/tileset
+      - ./openmaptiles/data:/import
+      - ./openmaptiles/data:/export
+      - ./openmaptiles/build/sql:/sql
+      - ./openmaptiles/build:/mapping
+      - ./openmaptiles/cache:/cache
+    networks:
+      - db
+
   tileserver:
     image: envisionz/tileserver
     environment:
       POSTSERVE_HOST: http://postserve:8080
-      TILE_FORMAT: webp
+      TILE_FORMAT: png
     networks:
       - tileservers
 
