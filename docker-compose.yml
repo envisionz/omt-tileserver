@@ -2,8 +2,9 @@ version: "3"
 
 volumes:
   pgdata:
-    external: true
-    name: omt-tileserver-pgdata
+  status:
+  omt-import:
+  omt-cache:
 
 networks:
   db:
@@ -12,40 +13,47 @@ networks:
 services:
   postgres:
     image: "openmaptiles/postgis:5.3"
-    env_file: omt.env
+    env_file: pg.env
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
       - db
-
-  postserve:
-    image: "openmaptiles/openmaptiles-tools:5.3"
+  
+  import-data:
+    image: "openmaptiles/import-data:5.3"
     command: >
-      /bin/bash -c "pgwait && postserve /openmaptiles.yaml --verbose --serve=http://postserve:8080 --port 8080"
+      /bin/sh -c "([ -f /status/data-import ] || ./import_data.sh) && touch /status/data-import"
+    env_file: omt.env
+    restart: on-failure
+    volumes: 
+      - status:/status
+    networks:
+      - db
+  
+  osm-update:
+    image: "envisionz/omt-tools"
+    command: "envnz-dl-import-update"
     env_file: omt.env
     volumes:
-      - ./openmaptiles:/tileset
+      - status:/status
+      - omt-cache:/cache
+      - omt-import:/import
+    networks:
+      - db
+
+  postserve:
+    image: "envisionz/omt-tools"
+    command: >
+      /bin/bash -c "pgwait 
+      && until [ -f /status/osm-import ]; do sleep 2; done
+      && postserve openmaptiles.yaml --verbose --serve=http://postserve:8080 --port 8080"
+    env_file: omt.env
+    volumes:
+      - status:/status
     networks:
       - db
       - tileservers
   
-  osm-update:
-    image: "openmaptiles/openmaptiles-tools:5.3"
-    command: >
-      /bin/bash -c "export IMPOSM_CONFIG_FILE=$$(find ./data -name *repl.json | head -1)  
-      && pgwait 
-      && import-update"
-    env_file: omt.env
-    volumes:
-      - ./openmaptiles:/tileset
-      - ./openmaptiles/data:/import
-      - ./openmaptiles/data:/export
-      - ./openmaptiles/build/sql:/sql
-      - ./openmaptiles/build:/mapping
-      - ./openmaptiles/cache:/cache
-    networks:
-      - db
-
   tileserver:
     image: envisionz/tileserver
     environment:
@@ -53,6 +61,7 @@ services:
       TILE_FORMAT: png
     networks:
       - tileservers
+    restart: on-failure
 
   cache:
     image: envisionz/varnish
