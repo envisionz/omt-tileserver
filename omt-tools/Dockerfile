@@ -1,4 +1,4 @@
-FROM openmaptiles/openmaptiles-tools:5.3
+FROM openmaptiles/openmaptiles-tools:5.3-imposm10
 
 ENV TILESET_FILE=openmaptiles.yaml
 

@@ -23,18 +23,23 @@ import_osm_data()
     download-osm geofabrik "$area" \
         -o "$area_pbf" \
         -b "$bbox" \
-        -j "$IMPOSM_CONFIG_FILE" \
-        -k "replication_interval=${interval}" || return 1
+        -j "$IMPOSM_CONFIG_FILE" || return 1
 
     printl "Importing '${area}'"
     import-osm "$area_pbf" || return 1
     printl "Importing '${area}' successful"
+
     printl "Importing borders"
     import-borders import "$area_pbf" || return 1
     printl "Importing borders successful"
+
     printl "Importing SQL"
     import-sql || return 1
     printl "Importing SQL successful"
+
+    # printl "Copying ${state_file} to ${last_state}"
+    # rm -f "$last_state" && cp "$state_file" "$last_state"
+
     printl "Removing '${area_pbf}'"
     rm -f "$area_pbf"
     return 0
@@ -53,11 +58,8 @@ import_status_file="/status/osm-import"
 ext_data_status_file="/status/data-import"
 
 dl_area="$ENVNZ_DL_AREA"
-update_interval="${ENVNZ_UPDATE_INTERVAL:-1h}"
 
 [ -z "$dl_area" ] && printl "ENVNZ_DL_AREA not set" && exit 1
-
-([ "$update_interval" != "1h" ] && [ "$update_interval" != "24h" ]) && printl "ENVNZ_UPDATE_INTERVAL must be 1h or 24h" && exit 1
 
 printl "Waiting for database to be ready before continuing"
 pgwait
