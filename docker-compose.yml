@@ -2,7 +2,8 @@ version: "3"
 
 volumes:
   pgdata:
-  status:
+  data-status:
+  osm-status:
   omt-import:
   omt-cache:
 
@@ -26,7 +27,7 @@ services:
     env_file: omt.env
     restart: on-failure
     volumes: 
-      - status:/status
+      - data-status:/status
     networks:
       - db
   
@@ -35,7 +36,8 @@ services:
     command: "envnz-dl-import-update"
     env_file: omt.env
     volumes:
-      - status:/status
+      - data-status:/status/data:ro
+      - osm-status:/status/osm
       - omt-cache:/cache
       - omt-import:/import
     networks:
@@ -49,7 +51,7 @@ services:
       && postserve openmaptiles.yaml --verbose --serve=http://postserve:8080 --port 8080"
     env_file: omt.env
     volumes:
-      - status:/status
+      - osm-status:/status
     networks:
       - db
       - tileservers
@@ -59,6 +61,8 @@ services:
     environment:
       POSTSERVE_HOST: http://postserve:8080
       TILE_FORMAT: png
+    volumes:
+      - osm-status:/status
     networks:
       - tileservers
     restart: on-failure

@@ -62,4 +62,14 @@ jq --arg d "$domains" \
     "$tmp_config" > /data/config.json
 rm "$tmp_config"
 
+# If a status directory is mounted, delay start
+if [ -d /status ]; then
+    printl "Waiting for OSM import to complete"
+    until [ -f /status/osm-import ]; do
+        sleep 2
+    done
+    # Give Postserve a bit of grace
+    sleep 1
+fi
+
 /app/docker-entrypoint.sh "$@"

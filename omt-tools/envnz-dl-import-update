@@ -54,10 +54,13 @@ osm_updater()
     return "$?"
 }
 
-import_status_file="/status/osm-import"
-ext_data_status_file="/status/data-import"
+import_status_file="/status/osm/osm-import"
+ext_data_status_file="/status/data/data-import"
 
 dl_area="$ENVNZ_DL_AREA"
+
+[ ! -d /status/osm ] && printl "/status/osm dir not mounted" && exit 1
+[ ! -d /status/data ] && printl "/status/data dir not mounted" && exit 1
 
 [ -z "$dl_area" ] && printl "ENVNZ_DL_AREA not set" && exit 1
 
