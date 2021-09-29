@@ -25,7 +25,7 @@ class TileMultiplier:
             tile = f'{z}/{x}/{y}'
             self.tile_set.add(tile)
     
-    def multiply(self, tile: str):
+    def multiply_tile(self, tile: str):
         """Multiply single tile to multiple tiles, and add to 'tile_set'
 
         Args:
@@ -47,3 +47,9 @@ class TileMultiplier:
             for sx in range(0, s):
                 for sy in range(0, s):
                     self._to_set(zz, xx+sx, yy+sy)
+
+def main():
+    pass
+
+if __name__ == '__main__':
+    main()
