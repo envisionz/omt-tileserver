@@ -6,6 +6,7 @@ volumes:
   osm-status:
   omt-import:
   omt-cache:
+  omt-expired-tiles:
 
 networks:
   db:
@@ -40,6 +41,7 @@ services:
       - osm-status:/status_osm
       - omt-cache:/cache
       - omt-import:/import
+      - omt-expired-tiles:/expired_tiles
     networks:
       - db
 

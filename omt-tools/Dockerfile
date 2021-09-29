@@ -15,7 +15,7 @@ ARG OMT_VERS=v3.12.2
 RUN git clone https://github.com/openmaptiles/openmaptiles.git /usr/src/openmaptiles \
     && cd /usr/src/openmaptiles \
     && git checkout ${OMT_VERS} \
-    && mkdir -p /sql/parallel /mapping /cache /import/borders \
+    && mkdir -p /sql/parallel /mapping /cache /import/borders /expired_tiles \
     && generate-imposm3 ${TILESET_FILE} > /mapping/mapping.yaml \
     && generate-sql ${TILESET_FILE} --dir /sql \
 		&& generate-sqltomvt ${TILESET_FILE} \
@@ -23,11 +23,13 @@ RUN git clone https://github.com/openmaptiles/openmaptiles.git /usr/src/openmapt
 							 --function --fname=getmvt >> /sql/run_last.sql \
     && cp ${TILESET_FILE} /tileset \
     && cp -R layers/ /tileset \
-    && chown -R "${OMT_USER}:${OMT_GROUP}" /sql /mapping /cache /import /tileset \
+    && chown -R "${OMT_USER}:${OMT_GROUP}" /sql /mapping /cache /import /tileset /expired_tiles \
     && cd /tileset \
     && rm -rf /usr/src/openmaptiles
 
 RUN mkdir -p /status_osm && chown -R "${OMT_USER}:${OMT_GROUP}" /status_osm
+
+ENV EXPIRETILES_DIR=/expired_tiles
 
 COPY ./envnz-dl-import-update /usr/src/app/envnz-dl-import-update
 RUN chmod +x /usr/src/app/envnz-dl-import-update
