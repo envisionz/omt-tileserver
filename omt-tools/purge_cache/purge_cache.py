@@ -32,6 +32,11 @@ class TileMultiplier:
             tile (str): tile in the form of 'z/x/y'
         """
         z, x, y = [int(i) for i in tile.split('/')]
+        
+        # Don't process tiles outside of the min-max zoom level range
+        if z < self.min_zoom or z > self.max_zoom:
+            return
+            
         self._to_set(z, x, y)
 
         xx, yy = x, y
