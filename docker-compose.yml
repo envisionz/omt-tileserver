@@ -36,8 +36,8 @@ services:
     command: "envnz-dl-import-update"
     env_file: omt.env
     volumes:
-      - data-status:/status/data:ro
-      - osm-status:/status/osm
+      - data-status:/status_data:ro
+      - osm-status:/status_osm
       - omt-cache:/cache
       - omt-import:/import
     networks:

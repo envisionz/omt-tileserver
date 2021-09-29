@@ -27,7 +27,7 @@ RUN git clone https://github.com/openmaptiles/openmaptiles.git /usr/src/openmapt
     && cd /tileset \
     && rm -rf /usr/src/openmaptiles
 
-RUN mkdir -p /status/osm && chown -R "${OMT_USER}:${OMT_GROUP}" /status/osm
+RUN mkdir -p /status_osm && chown -R "${OMT_USER}:${OMT_GROUP}" /status_osm
 
 COPY ./envnz-dl-import-update /usr/src/app/envnz-dl-import-update
 RUN chmod +x /usr/src/app/envnz-dl-import-update
