@@ -74,7 +74,7 @@ services:
     command: purge-cache
     environment:
       OMT_VARNISH_HOST: cache
-      OMT_MAX_ZOOM_PURGE: 16
+      OMT_MAX_ZOOM_PURGE: 17
     volumes:
       - omt-expired-tiles:/expired_tiles
     networks:
@@ -85,7 +85,7 @@ services:
     environment:
       OMT_VARNISH_SIZE: 1G
       OMT_VARNISH_PURGE: purge-cache
-      OMT_VARNISH_MAX_ZOOM: 16
+      OMT_VARNISH_MAX_ZOOM: 17
     ports:
       - "127.0.0.1:8181:80"
     networks:
