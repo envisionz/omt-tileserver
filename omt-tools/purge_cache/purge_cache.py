@@ -90,9 +90,9 @@ class CachePurger:
         self.varnish_url = self._construct_url(varnish_url)
         self.purge_req: int = 0
         self.cache_n_gone: int = 0
-        self.req_delta: float = 1 / rate
         self.session = requests.Session()
-        self.last: float = None
+        self.tiles: list[str] = []
+        self.xkey_len = len('xkey: ')
 
     def _construct_url(self, url: str) -> str:
         print(f'Constructing URL for "{url}"')
@@ -103,23 +103,38 @@ class CachePurger:
             u = u._replace(path='/')
         return u.geturl()
     
-    def purge_tile(self, tile: str):
-        if not self.last:
-            self.last = time.time()
-        # a crude form of throttling, good enough for this purpose
-        #time.sleep(self.req_delta)
-        r = self.session.request('PURGE', self.varnish_url, headers={'xkey': tile})
+    def purge_tile(self, tile: str, last: bool=False):
+        try:
+            # Note, Varnish appears to set the max length for a single header field
+            # to 2048 bytes
+            if self.xkey_len > 2000:
+                self._purge_tiles()
+
+            self.tiles.append(tile)
+            self.xkey_len += (len(tile) + 1)
+
+            if last:
+                self._purge_tiles()
+
+        except RequestException as req_err:
+            raise req_err
+   
+    def _purge_tiles(self):
+        tiles = ' '.join(self.tiles)
+        n_tiles = len(self.tiles)
+        # reset before any possible exception
+        self.tiles.clear()
+        self.xkey_len = len('xkey: ')
+        r = self.session.request('PURGE', self.varnish_url, headers={'xkey': tiles})
         if r.status_code == 200:
-            self.purge_req += 1
+            self.purge_req += n_tiles
             if 'n-gone' in r.headers:
                 self.cache_n_gone += int(r.headers['n-gone'])
-        t = time.time()
-        if t - self.last >= 10.0:
-            print(self.report())
-            self.last = t
+        else:
+            print(f'Purge code: {r.status_code}  ::: Body: {r.content}')
     
     def report(self) -> str:
-        return f'Purge req sent: {self.purge_req} - Objs removed: {self.cache_n_gone}'
+        return f'Purge req sent: {self.purge_req} ::: Objs removed: {self.cache_n_gone}'
 
 def main():
     parser = argparse.ArgumentParser()
@@ -130,6 +145,7 @@ def main():
     args = parser.parse_args()
     files = sorted(args.file)
     purger = CachePurger(args.varnish_host)
+    dt = time.time()
     for file in files:
         p = Path(file)
         tm = TileMultiplier(args.min_zoom, args.max_zoom)
@@ -145,11 +161,16 @@ def main():
                     n += 1
             print(f'Multiplied {n} tiles to {len(tm.tile_set)} tiles')
             print(f'Purging tiles from {p}')
-            for t in tm.tile_set:
+            set_len = len(tm.tile_set)
+            for i, t in enumerate(tm.tile_set, start=1):
                 try:
-                    purger.purge_tile(t)
+                    purger.purge_tile(t, i == set_len)
                 except RequestException as req_err:
                     print(req_err)
+                if time.time() - dt >= 5.0:
+                    print(purger.report())
+                    dt = time.time()
+
         except OSError as os_err:
             print(os_err)
     print(purger.report())
