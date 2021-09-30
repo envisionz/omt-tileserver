@@ -2,19 +2,22 @@
 
 vcl 4.0;
 
+import std;
+import var;
 import xkey;
 
 backend tileserver {
-  .host = "tileserver";
+  .host = "${tileserver_host}";
   .port = "8080";
 }
 
 backend postserve {
-  .host = "postserve";
+  .host = "${postserve_host}";
   .port = "8080";
 }
 
 acl purgers {
+  "${purge_host}";
   "localhost";
 }
 
@@ -49,29 +52,37 @@ sub vcl_recv {
 }
 
 sub vcl_backend_response {
-  set beresp.ttl = 4w;
-
+  var.set_int("max_z", std.integer(std.getenv("OMT_VARNISH_MAX_ZOOM"), 18));
+  
   // Remove all cookies
   unset beresp.http.set-cookie;
   unset beresp.http.cookie;
 
-  // set cache key based on tile coordinate, so all variants can be purged at once
-  if (bereq.url ~ "/[0-9]+/[0-9]+/[0-9]+\.(webp|png|jpg|jpeg|pbf)") {
-    set beresp.http.xkey = regsub(bereq.url, "^.+/([0-9]+/[0-9]+/[0-9]+)\.(webp|png|jpg|jpeg|pbf).*$", "\1");
-  }
-}
+  set beresp.grace = 2m;
+  set beresp.keep = 8m;
 
-sub vcl_deliver {
-  if (obj.hits > 0) {
-    set resp.http.X-Cache_v = "HIT";
-  } else {
-    set resp.http.X-Cache_v = "MISS";
+  // set cache key based on tile coordinate, so all variants can be purged at once
+  // Also, provide minimal caching for high zoom levels
+  if (bereq.url ~ "/[0-9]+/[0-9]+/[0-9]+\.(webp|png|jpg|jpeg|pbf)") {
+    var.set_int("curr_z", std.integer(regsub(bereq.url, "^.+/([0-9]+)/[0-9]+/[0-9]+\.(webp|png|jpg|jpeg|pbf).*$", "\1"), 18));
+    // High zoom level's won't be sent purge requests, so set a short ttl
+    if (var.get_int("curr_z") > var.get_int("max_z")) {
+      set beresp.ttl = 30m;
+    } else {
+      set beresp.http.xkey = regsub(bereq.url, "^.+/([0-9]+/[0-9]+/[0-9]+)\.(webp|png|jpg|jpeg|pbf).*$", "\1");
+      set beresp.ttl = 4w;
+    }
   }
 }
 
 sub vcl_hash {
   // Cache using only url as a hash.  
   // This means if a.tile/1/1/1/tile.png is accessed, b.tile/1/1/1/tile.png will also be fetch from cache
-  hash_data(req.url);
+  // Note, don't hash quey params for tiles
+  if (req.url ~ "/[0-9]+/[0-9]+/[0-9]+\.(webp|png|jpg|jpeg|pbf)") {
+    hash_data(regsub(req.url, "^(.+/[0-9]+/[0-9]+/[0-9]+\.(webp|png|jpg|jpeg|pbf)).*$", "\1"));
+  } else {
+    hash_data(req.url);
+  }
   return (lookup);
 }

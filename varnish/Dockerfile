@@ -14,4 +14,11 @@ RUN set -e;\
     rm -rf /varnish-mods; \
     apk del --no-network varnish-build-deps
 
+RUN mkdir -p /cache_store
+
 COPY default.vcl /etc/varnish/
+
+COPY omt-varnish-entrypoint.sh /omt-varnish-entrypoint.sh
+RUN chmod +x /omt-varnish-entrypoint.sh
+
+ENTRYPOINT [ "/omt-varnish-entrypoint.sh" ]
