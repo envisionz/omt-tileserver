@@ -6,8 +6,11 @@ import time
 
 from pathlib import Path
 import requests
-from requests import Response
+from requests import Session
 from requests.exceptions import RequestException
+from urllib import parse
+
+from requests.models import parse_url
 
 class TileMultiplier:
     """Generate unique list of map tiles from single map tiles
@@ -84,20 +87,36 @@ class TileMultiplier:
 
 class CachePurger:
     def __init__(self, varnish_url: str="http://localhost/", rate: int=5000) -> None:
-        self.varnish_url=varnish_url
+        self.varnish_url = self._construct_url(varnish_url)
         self.purge_req: int = 0
         self.cache_n_gone: int = 0
         self.req_delta: float = 1 / rate
+        self.session = requests.Session()
+        self.last: float = None
+
+    def _construct_url(self, url: str) -> str:
+        print(f'Constructing URL for "{url}"')
+        if not url.startswith('http://') and not url.startswith('https://'):
+            nu = f'http://{url}'
+        u = parse.urlparse(nu)
+        if not u.path:
+            u = u._replace(path='/')
+        return u.geturl()
     
     def purge_tile(self, tile: str):
+        if not self.last:
+            self.last = time.time()
         # a crude form of throttling, good enough for this purpose
-        time.sleep(self.req_delta)
-        headers = {'xkey': tile}
-        r = requests.request('PURGE', self.varnish_url, headers=headers)
+        #time.sleep(self.req_delta)
+        r = self.session.request('PURGE', self.varnish_url, headers={'xkey': tile})
         if r.status_code == 200:
             self.purge_req += 1
             if 'n-gone' in r.headers:
                 self.cache_n_gone += int(r.headers['n-gone'])
+        t = time.time()
+        if t - self.last >= 10.0:
+            print(self.report())
+            self.last = t
     
     def report(self) -> str:
         return f'Purge req sent: {self.purge_req} - Objs removed: {self.cache_n_gone}'
@@ -110,17 +129,22 @@ def main():
     parser.add_argument('file',nargs='+', help='File containing list of tiles to expire from imposm3')
     args = parser.parse_args()
     files = sorted(args.file)
-    purger = CachePurger(args.v)
+    purger = CachePurger(args.varnish_host)
     for file in files:
         p = Path(file)
-        tm = TileMultiplier(args.z, args.Z)
+        tm = TileMultiplier(args.min_zoom, args.max_zoom)
         try:
+            n: int = 0
+            print(f'Multiplying tiles in {p}')
             with p.open() as f:
                 for line in f:
                     try:
                         tm.multiply_tile(line.rstrip())
                     except TileMultiplier.MultiplierError as m_err:
                         print(m_err)
+                    n += 1
+            print(f'Multiplied {n} tiles to {len(tm.tile_set)} tiles')
+            print(f'Purging tiles from {p}')
             for t in tm.tile_set:
                 try:
                     purger.purge_tile(t)
