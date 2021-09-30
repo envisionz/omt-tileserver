@@ -1,5 +1,11 @@
 FROM openmaptiles/openmaptiles-tools:5.3-imposm10
 
+RUN DEBIAN_FRONTEND=noninteractive apt-get update; \
+    DEBIAN_FRONTEND=noninteractive apt-get upgrade -y; \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        inotify-tools; \
+    rm -rf /var/lib/apt/lists/*
+
 ENV TILESET_FILE=openmaptiles.yaml
 
 ARG OMT_USER=omt
@@ -30,6 +36,9 @@ RUN git clone https://github.com/openmaptiles/openmaptiles.git /usr/src/openmapt
 RUN mkdir -p /status_osm && chown -R "${OMT_USER}:${OMT_GROUP}" /status_osm
 
 ENV EXPIRETILES_DIR=/expired_tiles
+
+COPY ./purge_cache/purge_cache.py ./purge_cache/purge-cache /usr/src/app/
+RUN chmod +x /usr/src/app/purge_cache.py /usr/src/app/purge-cache
 
 COPY ./envnz-dl-import-update /usr/src/app/envnz-dl-import-update
 RUN chmod +x /usr/src/app/envnz-dl-import-update

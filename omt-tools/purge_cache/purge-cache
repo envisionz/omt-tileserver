@@ -1,2 +1,26 @@
 #!/bin/bash
 
+printl()
+{
+    printf "%s\n" "$1"
+}
+
+varnish_hostname=${OMT_VARNISH_HOST:-cache}
+min_purge=${OMT_MIN_ZOOM_PURGE:-12}
+max_purge=${OMT_MAX_ZOOM_PURGE:-18}
+
+pending=$(find /expired_tiles -name *.tiles)
+
+until [ -z "${pending// }" ]; do
+    printl "Found pending tilesets to expire: '${pending}'"
+    purge_cache.py -z "$min_purge" -Z "$max_purge" -v "$varnish_hostname" $pending
+    rm -f $pending
+    pending=$(find /expired_tiles -name *.tiles)
+done
+
+inotifywait -mr -e moved_to --format '%w%f' /expired_tiles/ | while read tile_file
+do
+    printl "Expired tile list '${tile_file}' detected"
+    purge_cache.py -z "$min_purge" -Z "$max_purge" -v "$varnish_hostname" "$tile_file"
+    rm -f "$tile_file"
+done
