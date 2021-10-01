@@ -52,7 +52,7 @@ sub vcl_recv {
 }
 
 sub vcl_backend_response {
-  var.set_int("max_z", std.integer(std.getenv("OMT_VARNISH_MAX_ZOOM"), 18));
+  var.set_int("max_z", std.integer(std.getenv("OMT_CACHE_ZOOM_MAX"), 18));
   
   // Remove all cookies
   unset beresp.http.set-cookie;

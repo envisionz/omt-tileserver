@@ -76,8 +76,8 @@ services:
     image: "envisionz/omt-tools"
     command: purge-cache
     environment:
-      OMT_VARNISH_HOST: cache
-      OMT_MAX_ZOOM_PURGE: 17
+      OMT_CACHE_HOST: cache
+      OMT_CACHE_ZOOM_MAX: 17
     volumes:
       - omt-expired-tiles:/expired_tiles
     networks:
@@ -86,9 +86,9 @@ services:
   cache:
     image: envisionz/varnish
     environment:
-      OMT_VARNISH_SIZE: 1G
-      OMT_VARNISH_PURGE: purge-cache
-      OMT_VARNISH_MAX_ZOOM: 17
+      OMT_CACHE_SIZE: 1G
+      OMT_PURGE_HOST: purge-cache
+      OMT_CACHE_ZOOM_MAX: 17
     ports:
       - "127.0.0.1:8181:80"
     networks:

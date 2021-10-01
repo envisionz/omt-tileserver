@@ -1,13 +1,13 @@
 #!/bin/sh
 
-backend=${OMT_VARNISH_STORAGE:-malloc}
-size=${OMT_VARNISH_SIZE:-1G}
+backend=${OMT_CACHE_STORAGE:-malloc}
+size=${OMT_CACHE_SIZE:-1G}
 
-postserve_host=${OMT_VARNISH_POSTSERVE:-postserve}
-tileserver_host=${OMT_VARNISH_TILESERVER:-tileserver}
-purge_host=${OMT_VARNISH_PURGE}
+postserve_host=${OMT_POSTSERVE_HOST:-postserve}
+tileserver_host=${OMT_TILESERVER_HOST:-tileserver}
+purge_host=${OMT_PURGE_HOST}
 
-export OMT_VARNISH_MAX_ZOOM=${OMT_VARNISH_MAX_ZOOM:-18}
+export OMT_CACHE_ZOOM_MAX=${OMT_CACHE_ZOOM_MAX:-18}
 
 if [ "$backend" = "file" ]; then
     storage="file,/cache_store/store,${size}"

@@ -57,14 +57,14 @@ osm_updater()
 import_status_file="/status_osm/osm-import"
 ext_data_status_file="/status_data/data-import"
 
-dl_area="$ENVNZ_DL_AREA"
+dl_area="$OMT_DL_GEOFABRIK_AREA"
 
 [ ! -d /status_osm ] && printl "/status_osm dir not mounted" && exit 1
 [ ! -d /status_data ] && printl "/status_data dir not mounted" && exit 1
 
 (touch /status_osm/test && rm -f /status_osm/test) || exit 1
 
-[ -z "$dl_area" ] && printl "ENVNZ_DL_AREA not set" && exit 1
+[ -z "$dl_area" ] && printl "OMT_DL_GEOFABRIK_AREA not set" && exit 1
 
 printl "Waiting for database to be ready before continuing"
 pgwait

@@ -7,9 +7,9 @@ printl()
 
 export PYTHONUNBUFFERED=1
 
-varnish_hostname=${OMT_VARNISH_HOST:-cache}
-min_purge=${OMT_MIN_ZOOM_PURGE:-12}
-max_purge=${OMT_MAX_ZOOM_PURGE:-18}
+varnish_hostname=${OMT_CACHE_HOST:-cache}
+min_purge=${OMT_CACHE_ZOOM_MIN:-12}
+max_purge=${OMT_CACHE_ZOOM_MAX:-18}
 
 pending=$(find /expired_tiles -name *.tiles)
 
