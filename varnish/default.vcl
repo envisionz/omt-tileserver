@@ -44,7 +44,7 @@ sub vcl_recv {
   }
 
   // Cache only tiles
-  if (req.url ~ "/[0-9]+/[0-9]+/[0-9]+\.(webp|png|jpg|jpeg|pbf)") {
+  if (req.url ~ "/[0-9]+/[0-9]+/[0-9](@[0-9]x){0,1}+\.(webp|png|jpg|jpeg|pbf)") {
     return (hash);
   } else {
     return (pass);
@@ -63,8 +63,8 @@ sub vcl_backend_response {
 
   // set cache key based on tile coordinate, so all variants can be purged at once
   // Also, provide minimal caching for high zoom levels
-  if (bereq.url ~ "/[0-9]+/[0-9]+/[0-9]+\.(webp|png|jpg|jpeg|pbf)") {
-    var.set_int("curr_z", std.integer(regsub(bereq.url, "^.+/([0-9]+)/[0-9]+/[0-9]+\.(webp|png|jpg|jpeg|pbf).*$", "\1"), 18));
+  if (bereq.url ~ "/[0-9]+/[0-9]+/[0-9]+(@[0-9]x){0,1}\.(webp|png|jpg|jpeg|pbf)") {
+    var.set_int("curr_z", std.integer(regsub(bereq.url, "^.+/([0-9]+)/[0-9]+/[0-9]+(@[0-9]x){0,1}\.(webp|png|jpg|jpeg|pbf).*$", "\1"), 18));
     // High zoom level's won't be sent purge requests, so set a short ttl
     if (var.get_int("curr_z") > var.get_int("max_z")) {
       set beresp.ttl = 30m;
@@ -79,8 +79,8 @@ sub vcl_hash {
   // Cache using only url as a hash.  
   // This means if a.tile/1/1/1/tile.png is accessed, b.tile/1/1/1/tile.png will also be fetch from cache
   // Note, don't hash quey params for tiles
-  if (req.url ~ "/[0-9]+/[0-9]+/[0-9]+\.(webp|png|jpg|jpeg|pbf)") {
-    hash_data(regsub(req.url, "^(.+/[0-9]+/[0-9]+/[0-9]+\.(webp|png|jpg|jpeg|pbf)).*$", "\1"));
+  if (req.url ~ "/[0-9]+/[0-9]+/[0-9]+(@[0-9]x){0,1}\.(webp|png|jpg|jpeg|pbf)") {
+    hash_data(regsub(req.url, "^(.+/[0-9]+/[0-9]+/[0-9]+(@[0-9]x){0,1}\.(webp|png|jpg|jpeg|pbf)).*$", "\1"));
   } else {
     hash_data(req.url);
   }
