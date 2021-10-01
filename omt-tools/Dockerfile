@@ -42,4 +42,6 @@ RUN chmod +x /usr/src/app/purge_cache.py /usr/src/app/purge-cache
 COPY ./envnz-dl-import-update /usr/src/app/envnz-dl-import-update
 RUN chmod +x /usr/src/app/envnz-dl-import-update
 
+ENV DIFF_MODE=true
+
 USER ${OMT_USER}

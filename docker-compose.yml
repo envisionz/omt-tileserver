@@ -15,7 +15,10 @@ networks:
 services:
   postgres:
     image: "openmaptiles/postgis:5.3"
-    env_file: pg.env
+    env_file: .env
+    environment:
+      PGHOST:
+      PGPORT:
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
@@ -25,7 +28,7 @@ services:
     image: "openmaptiles/import-data:5.3"
     command: >
       /bin/sh -c "([ -f /status/data-import ] || ./import_data.sh) && touch /status/data-import"
-    env_file: omt.env
+    env_file: .env
     restart: on-failure
     volumes: 
       - data-status:/status
@@ -35,7 +38,7 @@ services:
   osm-update:
     image: "envisionz/omt-tools"
     command: "envnz-dl-import-update"
-    env_file: omt.env
+    env_file: .env
     volumes:
       - data-status:/status_data:ro
       - osm-status:/status_osm
@@ -51,7 +54,7 @@ services:
       /bin/bash -c "pgwait 
       && until [ -f /status/osm-import ]; do sleep 2; done
       && postserve openmaptiles.yaml --verbose --serve=http://postserve:8080 --port 8080"
-    env_file: omt.env
+    env_file: .env
     volumes:
       - osm-status:/status
     networks:
