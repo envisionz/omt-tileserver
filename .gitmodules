@@ -1,28 +1,28 @@
 [submodule "tileserver/styles/maptiler-basic-gl-style"]
-	path = tileserver/styles/maptiler-basic-gl-style
+	path = ts-gl/styles/maptiler-basic-gl-style
 	url = https://github.com/openmaptiles/maptiler-basic-gl-style.git
 	branch = gh-pages
 [submodule "tileserver/styles/osm-bright-gl-style"]
-	path = tileserver/styles/osm-bright-gl-style
+	path = ts-gl/styles/osm-bright-gl-style
 	url = https://github.com/openmaptiles/osm-bright-gl-style.git
 	branch = gh-pages
 [submodule "tileserver/styles/positron-gl-style"]
-	path = tileserver/styles/positron-gl-style
+	path = ts-gl/styles/positron-gl-style
 	url = https://github.com/openmaptiles/positron-gl-style.git
 	branch = gh-pages
 [submodule "tileserver/styles/dark-matter-gl-style"]
-	path = tileserver/styles/dark-matter-gl-style
+	path = ts-gl/styles/dark-matter-gl-style
 	url = https://github.com/openmaptiles/dark-matter-gl-style.git
 	branch = gh-pages
 [submodule "tileserver/styles/maptiler-terrain-gl-style"]
-	path = tileserver/styles/maptiler-terrain-gl-style
+	path = ts-gl/styles/maptiler-terrain-gl-style
 	url = https://github.com/openmaptiles/maptiler-terrain-gl-style.git
 	branch = gh-pages
 [submodule "tileserver/styles/osm-liberty"]
-	path = tileserver/styles/osm-liberty
+	path = ts-gl/styles/osm-liberty
 	url = https://github.com/maputnik/osm-liberty.git
 	branch = gh-pages
 [submodule "tileserver/fonts"]
-	path = tileserver/fonts
+	path = ts-gl/fonts
 	url = https://github.com/openmaptiles/fonts.git
 	branch = gh-pages
