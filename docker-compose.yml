@@ -15,10 +15,7 @@ networks:
 services:
   postgres:
     image: "openmaptiles/postgis:5.3"
-    env_file: .env
-    environment:
-      PGHOST:
-      PGPORT:
+    env_file: .env-pg
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
