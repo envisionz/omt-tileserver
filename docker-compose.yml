@@ -60,9 +60,7 @@ services:
   
   tileserver:
     image: envisionz/tileserver
-    environment:
-      POSTSERVE_HOST: http://postserve:8080
-      TILE_FORMAT: png
+    env_file: .env
     volumes:
       - osm-status:/status
     networks:
@@ -72,9 +70,7 @@ services:
   purge-cache:
     image: "envisionz/omt-tools"
     command: purge-cache
-    environment:
-      OMT_CACHE_HOST: cache
-      OMT_CACHE_ZOOM_MAX: 17
+    env_file: .env
     volumes:
       - omt-expired-tiles:/expired_tiles
     networks:
@@ -82,11 +78,8 @@ services:
 
   cache:
     image: envisionz/varnish
-    environment:
-      OMT_CACHE_SIZE: 1G
-      OMT_PURGE_HOST: purge-cache
-      OMT_CACHE_ZOOM_MAX: 17
+    env_file: .env
     ports:
-      - "127.0.0.1:8181:80"
+      - "127.0.0.1:8181:8080"
     networks:
       - tileservers

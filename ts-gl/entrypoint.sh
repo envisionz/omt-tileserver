@@ -7,22 +7,17 @@ printl()
     printf "%s\n" "$1"
 }
 
-default_postserve_host="http://postserve:8080"
+postsrv_host="http://${OMT_POSTSERVE_HOST:-postserve}:${OMT_POSTSERVE_PORT:-8080}/"
 
-postsrv_host="${TILE_POSTSERVE_HOST:-$default_postserve_host}"
+domains=${OMT_TILESERVER_DOMAINS:-'localhost:8181,127.0.0.1:8181'}
 
-domains=${TILE_DOMAINS:-'localhost:8181,127.0.0.1:8181'}
+bounds=${OMT_TILESERVER_BOUNDS:-'-180,-85.0511,180,85.0511'}
 
-# min_zoom=${TILE_MIN_ZOOM:-0}
-# max_zoom=${TILE_MAX_ZOOM:-20}
+center=${OMT_TILESERVER_CENTER:-'0,0,2'}
 
-bounds=${TILE_BOUNDS:-'-180,-85.0511,180,85.0511'}
+attribution=${OMT_TILESERVER_ATTR:-'<a href="https://openmaptiles.org/">© OpenMapTiles</a> <a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a>'}
 
-center=${TILE_CENTER:-'0,0,2'}
-
-attribution=${TILE_ATTR:-'<a href="https://openmaptiles.org/">© OpenMapTiles</a> <a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a>'}
-
-format=${TILE_FORMAT:-png}
+format=${OMT_TILESERVER_FMT:-png}
 
 cd /data/styles
 

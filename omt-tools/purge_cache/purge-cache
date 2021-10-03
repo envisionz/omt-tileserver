@@ -8,6 +8,8 @@ printl()
 export PYTHONUNBUFFERED=1
 
 varnish_hostname=${OMT_CACHE_HOST:-cache}
+varnish_hostname="${varnish_hostname}:${OMT_CACHE_PORT:-8080}"
+
 min_purge=${OMT_CACHE_ZOOM_MIN:-12}
 max_purge=${OMT_CACHE_ZOOM_MAX:-18}
 

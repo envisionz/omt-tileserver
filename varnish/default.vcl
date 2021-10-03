@@ -8,12 +8,12 @@ import xkey;
 
 backend tileserver {
   .host = "${tileserver_host}";
-  .port = "8080";
+  .port = "${tileserver_port}";
 }
 
 backend postserve {
   .host = "${postserve_host}";
-  .port = "8080";
+  .port = "${postserve_port}";
 }
 
 acl purgers {
