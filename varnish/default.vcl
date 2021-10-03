@@ -35,6 +35,12 @@ sub vcl_recv {
 	  }
   }
 
+  # Block access to the tileserver-gl '/data' endpoint, since we're exposing
+  # the original vector tileserver (postserve) instead
+  if (req.url ~ "/data/{0,1}") {
+    return (synth(404, "Not found"));
+  }
+
   unset req.http.cookie;
 
   if (req.url ~ "/tiles/[0-9]+/[0-9]+/[0-9]+\.pbf") {
