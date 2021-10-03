@@ -18,8 +18,8 @@
     "pbfAlias": "pbf",
     "serveAllFonts": false,
     "serveAllStyles": false,
-    "minRendererPoolSizes": [6, 4, 2],
-    "maxRendererPoolSizes": [6, 4, 2],
+    "minRendererPoolSizes": [],
+    "maxRendererPoolSizes": [],
     "serveStaticMaps": true,
     "tileMargin": 0
   },

@@ -19,6 +19,13 @@ attribution=${OMT_TILESERVER_ATTR:-'<a href="https://openmaptiles.org/">© OpenM
 
 format=${OMT_TILESERVER_FMT:-png}
 
+min_rend=${OMT_TILESERVER_MIN_REND_POOL_SZ:-8,4,2}
+max_rend=${OMT_TILESERVER_MAX_REND_POOL_SZ:-16,8,4}
+
+tile_margin=${OMT_TILESERVER_MARGIN:-0}
+
+front_page=${OMT_TILESERVER_FRONT_PAGE:-true}
+
 cd /data/styles
 
 declare -A styles
@@ -52,8 +59,15 @@ done
 
 # Global config options
 cp /data/config.json "$tmp_config"
-jq --arg d "$domains" \
-    '.options.domains = ($d | split(","))' \
+jq --arg d "$domains" --arg min "$min_rend" --arg max "$max_rend" --arg tm "$tile_margin" --arg p "$tileserver_path" --arg f "$front_page" \
+    '.options.domains = ($d | split(",")) | 
+     .options.minRendererPoolSizes = ($min | split(",")) |
+     .options.minRendererPoolSizes[] |= tonumber |
+     .options.maxRendererPoolSizes = ($max | split(",")) |
+     .options.maxRendererPoolSizes[] |= tonumber | 
+     .options.tileMargin = ($tm | tonumber) | 
+     .options.paths.root = $p | 
+     .options.frontPage = ($f | test("^(true|t|1)$"; "i"))' \
     "$tmp_config" > /data/config.json
 rm "$tmp_config"
 
