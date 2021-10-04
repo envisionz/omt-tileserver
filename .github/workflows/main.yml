@@ -1,0 +1,89 @@
+name: Create Docker Images
+
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+  pull_request:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+  schedule:
+    - cron: '5 1 * * 3'
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME_OMT_TOOLS: "${{ github.repository_owner }}/omt-tools"
+  IMAGE_NAME_TSGL: "${{ github.repository_owner }}/ts-gl"
+  IMAGE_NAME_VARNISH: "${{ github.repository_owner }}/varnish"
+
+jobs:
+  build-omt-tools:
+    if: github.event_name != 'pull_request' || contains('shermp', github.actor) == false
+
+    runs-on: ubuntu-latest
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
+    strategy:
+      matrix:
+        conf:
+          - name: Build Main
+            branch: main
+            tools-tag: v5.3.2
+            imposm-args:
+              url: https://github.com/omniscale/imposm3.git
+              vers: v0.10.0
+          - name: Build OMT 3.12.2
+            branch: 1-omt-3.12.2
+            tools-tag: v5.3.2
+            imposm-args:
+              url: https://github.com/omniscale/imposm3.git
+              vers: v0.10.0
+    
+    steps:
+      # Checkout upstream openmaptiles-tools repository
+      - name: Checkout openmaptiles-tools
+        uses: actions/checkout@v2
+        with:
+          repository: 'openmaptiles/openmaptiles-tools'
+          ref: "${{matrix.conf.tools-tag}}"
+          path: openmaptiles-tools
+          
+      - name: Checkout current repository
+        uses: actions/checkout@v2
+        with:
+          ref: "${{matrix.conf.bramch}}"
+          path: omt-tileserver
+      
+      - name: Log in to the Container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          driver-opts: network=host
+      
+      - name: Build upstream openmaptiles-tools and push to local registry
+        uses: docker/build-push-action@v2
+        with:
+          context: openmaptiles-tools
+          push: true
+          tags: localhost:5000/openmaptiles/openmaptiles-tools:latest
+          build-args: IMPOSM_REPO=${{ matrix.conf.imposm-args.url }},IMPOSM_VERSION=${{ matrix.conf.imposm-args.vers }}
+      
+      - name: Modify omt-tools Dockerfile to use upstream image from local repository
+        run: |
+          sed -i -e 's#^FROM openmaptiles/openmaptiles-tools.+$#FROM localhost:5000/openmaptiles/openmaptiles-tools:latest#g omt-tileserver/omt-tools/Dockerfile
+        
+      - name: Build omt-tools docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: omt-tileserver/omt-tools
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_OMT_TOOLS }}:${{ matrix.conf.bramch }}
+      
