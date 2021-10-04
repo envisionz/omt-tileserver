@@ -30,16 +30,8 @@ jobs:
         conf:
           - name: Build Main
             branch: main
-            tools-tag: v5.3.2
-            imposm-args:
-              url: https://github.com/omniscale/imposm3.git
-              vers: v0.10.0
           - name: Build OMT 3.12.2
             branch: 1-omt-3.12.2
-            tools-tag: v5.3.2
-            imposm-args:
-              url: https://github.com/omniscale/imposm3.git
-              vers: v0.10.0
     
     steps:
       # Checkout upstream openmaptiles-tools repository
