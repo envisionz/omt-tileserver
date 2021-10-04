@@ -28,7 +28,7 @@ jobs:
     steps:         
       - uses: actions/checkout@v2
         with:
-          ref: "${{matrix.bramch}}"
+          ref: "${{matrix.branch}}"
       
       - name: Log in to the Container registry
         uses: docker/login-action@v1
@@ -45,7 +45,7 @@ jobs:
         with:
           context: ./omt-tools
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_OMT_TOOLS }}:${{ matrix.bramch }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_OMT_TOOLS }}:${{ matrix.branch }}
 
   build-ts-gl:
     if: github.event_name != 'pull_request' || contains('shermp', github.actor) == false
@@ -59,7 +59,7 @@ jobs:
     steps:         
       - uses: actions/checkout@v2
         with:
-          ref: "${{matrix.bramch}}"
+          ref: "${{matrix.branch}}"
       
       - name: Log in to the Container registry
         uses: docker/login-action@v1
@@ -76,7 +76,7 @@ jobs:
         with:
           context: ./ts-gl
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_TSGL }}:${{ matrix.bramch }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_TSGL }}:${{ matrix.branch }}
   
   build-varnish:
     if: github.event_name != 'pull_request' || contains('shermp', github.actor) == false
@@ -90,7 +90,7 @@ jobs:
     steps:         
       - uses: actions/checkout@v2
         with:
-          ref: "${{matrix.bramch}}"
+          ref: "${{matrix.branch}}"
       
       - name: Log in to the Container registry
         uses: docker/login-action@v1
@@ -107,4 +107,4 @@ jobs:
         with:
           context: ./varnish
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_VARNISH }}:${{ matrix.bramch }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_VARNISH }}:${{ matrix.branch }}
