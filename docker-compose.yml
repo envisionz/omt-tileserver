@@ -14,7 +14,7 @@ networks:
 
 services:
   postgres:
-    image: "openmaptiles/postgis:5.3"
+    image: openmaptiles/postgis:5.3
     env_file: .env-pg
     volumes:
       - pgdata:/var/lib/postgresql/data
@@ -22,7 +22,7 @@ services:
       - db
   
   import-data:
-    image: "openmaptiles/import-data:5.3"
+    image: openmaptiles/import-data:5.3
     command: >
       /bin/sh -c "([ -f /status/data-import ] || ./import_data.sh) && touch /status/data-import"
     env_file: .env
@@ -33,7 +33,7 @@ services:
       - db
   
   osm-update:
-    image: "envisionz/omt-tools"
+    image: ghcr.io/envisionz/omt-tools:main
     command: "envnz-dl-import-update"
     env_file: .env
     volumes:
@@ -46,7 +46,7 @@ services:
       - db
 
   postserve:
-    image: "envisionz/omt-tools"
+    image: ghcr.io/envisionz/omt-tools:main
     command: >
       /bin/bash -c "pgwait 
       && until [ -f /status/osm-import ]; do sleep 2; done
@@ -59,7 +59,7 @@ services:
       - tileservers
   
   tileserver:
-    image: envisionz/tileserver
+    image: ghcr.io/envisionz/ts-gl:main
     env_file: .env
     volumes:
       - osm-status:/status
@@ -68,7 +68,7 @@ services:
     restart: on-failure
   
   purge-cache:
-    image: "envisionz/omt-tools"
+    image: ghcr.io/envisionz/omt-tools:main
     command: purge-cache
     env_file: .env
     volumes:
@@ -77,7 +77,7 @@ services:
       - tileservers
 
   cache:
-    image: envisionz/varnish
+    image: ghcr.io/envisionz/varnish:main
     env_file: .env
     ports:
       - "127.0.0.1:8181:8080"
