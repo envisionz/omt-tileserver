@@ -49,8 +49,10 @@ sub vcl_recv {
     set req.backend_hint = tileserver;
   }
 
-  // Cache only tiles
+  // Cache tiles and static images
   if (req.url ~ "/[0-9]+/[0-9]+/[0-9](@[0-9]x){0,1}+\.(webp|png|jpg|jpeg|pbf)") {
+    return (hash);
+  } elseif(req.url ~ "/styles/[a-zA-Z_\-]/static/.+\.(webp|png|jpg|jpeg)") {
     return (hash);
   } else {
     return (pass);
@@ -78,6 +80,8 @@ sub vcl_backend_response {
       set beresp.http.xkey = regsub(bereq.url, "^.+/([0-9]+/[0-9]+/[0-9]+)\.(webp|png|jpg|jpeg|pbf).*$", "\1");
       set beresp.ttl = 4w;
     }
+  } elseif (bereq.url ~ "/styles/[a-zA-Z_\-]/static/.+\.(webp|png|jpg|jpeg)") {
+    set beresp.ttl = 1h;
   }
 }
 
