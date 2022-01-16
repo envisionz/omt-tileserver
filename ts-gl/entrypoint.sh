@@ -26,6 +26,14 @@ tile_margin=${OMT_TILESERVER_MARGIN:-0}
 
 front_page=${OMT_TILESERVER_FRONT_PAGE:-true}
 
+mb_tiles_file=/data/tiles.mbtiles
+
+src_omt_url="$postsrv_host"
+
+if [ -f "$mb_tiles_file" ]; then
+    src_omt_url="mbtiles://{v3}"
+fi
+
 cd /data/styles
 
 declare -A styles
@@ -41,13 +49,14 @@ tmp_config=".config.json.tmp"
 
 for style in ${!styles[@]}; do
     cp "${styles[$style]}" "$tmp_style"
-    jq --arg p "$postsrv_host" \
-        '.sources.openmaptiles.url = $p | .glyphs = "{fontstack}/{range}.pbf"' \
+    jq --arg u "$src_omt_url" \
+        '.sources.openmaptiles.url = $u | .glyphs = "{fontstack}/{range}.pbf"' \
         "$tmp_style" > "${styles[$style]}"
     rm "$tmp_style"
     
     cp /data/config.json "$tmp_config"
-    jq --arg sk "$style" --arg sf "${styles[$style]}" --arg b "$bounds" --arg c "$center" --arg f "$format" --arg a "$attribution" \
+    jq --arg sk "$style" --arg sf "${styles[$style]}" --arg b "$bounds" \
+        --arg c "$center" --arg f "$format" --arg a "$attribution" \
         '.styles += {($sk): {"style": $sf, "tilejson":{"format": $f, "attribution": $a, "bounds": [], "center": []}}} |
          .styles[$sk].tilejson.bounds = ($b | split(",")) |
          .styles[$sk].tilejson.bounds[] |= tonumber |
@@ -59,7 +68,8 @@ done
 
 # Global config options
 cp /data/config.json "$tmp_config"
-jq --arg d "$domains" --arg min "$min_rend" --arg max "$max_rend" --arg tm "$tile_margin" --arg p "$tileserver_path" --arg f "$front_page" \
+jq --arg d "$domains" --arg min "$min_rend" --arg max "$max_rend" --arg tm "$tile_margin" \
+    --arg p "$tileserver_path" --arg f "$front_page" --arg u "$src_omt_url" --arg mb "$(basename "$mb_tiles_file")" \
     '.options.domains = ($d | split(",")) | 
      .options.minRendererPoolSizes = ($min | split(",")) |
      .options.minRendererPoolSizes[] |= tonumber |
@@ -67,7 +77,8 @@ jq --arg d "$domains" --arg min "$min_rend" --arg max "$max_rend" --arg tm "$til
      .options.maxRendererPoolSizes[] |= tonumber | 
      .options.tileMargin = ($tm | tonumber) | 
      .options.paths.root = $p | 
-     .options.frontPage = ($f | test("^(true|t|1)$"; "i"))' \
+     .options.frontPage = ($f | test("^(true|t|1)$"; "i")) |
+     if $u == "mbtiles://{v3}" then .data += {"omt": {"mbtiles": $mb }} else del(.data) end' \
     "$tmp_config" > /data/config.json
 rm "$tmp_config"
 
