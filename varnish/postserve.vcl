@@ -66,6 +66,13 @@ sub vcl_recv {
   }
 }
 
+sub vcl_synth {
+  if (req.http.n-gone) {
+    set resp.http.n-gone = req.http.n-gone;
+  }
+  return (deliver);
+}
+
 sub vcl_backend_response {
   var.set_int("max_z", std.integer(std.getenv("OMT_CACHE_ZOOM_MAX"), 18));
   
