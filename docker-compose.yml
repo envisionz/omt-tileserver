@@ -14,7 +14,7 @@ networks:
 
 services:
   postgres:
-    image: openmaptiles/postgis:5.3
+    image: openmaptiles/postgis:6.1
     env_file: .env-pg
     volumes:
       - pgdata:/var/lib/postgresql/data
@@ -22,7 +22,7 @@ services:
       - db
   
   import-data:
-    image: openmaptiles/import-data:5.3
+    image: openmaptiles/import-data:6.1
     command: >
       /bin/sh -c "([ -f /status/data-import ] || ./import_data.sh) && touch /status/data-import"
     env_file: .env

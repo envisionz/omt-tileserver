@@ -29,10 +29,6 @@ import_osm_data()
     import-osm "$area_pbf" || return 1
     printl "Importing '${area}' successful"
 
-    printl "Importing borders"
-    import-borders import "$area_pbf" || return 1
-    printl "Importing borders successful"
-
     printl "Importing SQL"
     import-sql || return 1
     printl "Importing SQL successful"

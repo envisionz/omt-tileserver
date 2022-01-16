@@ -1,4 +1,4 @@
-FROM openmaptiles/openmaptiles-tools:5.3-imposm10
+FROM openmaptiles/openmaptiles-tools:6.1
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update; \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
@@ -15,7 +15,7 @@ ARG OMT_GID=50005
 RUN groupadd -r ${OMT_GROUP} -g ${OMT_GID} && \
     useradd -m -d /home/${OMT_USER}/ -u ${OMT_UID} --gid ${OMT_GID} -s /bin/bash -G ${OMT_GROUP} ${OMT_USER}
 
-ARG OMT_VERS=v3.12.2
+ARG OMT_VERS=v3.13
 
 RUN git clone https://github.com/openmaptiles/openmaptiles.git /usr/src/openmaptiles \
     && cd /usr/src/openmaptiles \
