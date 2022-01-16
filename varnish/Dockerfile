@@ -14,9 +14,9 @@ RUN set -e;\
     rm -rf /varnish-mods; \
     apk del --no-network varnish-build-deps
 
-RUN mkdir -p /cache_store
+RUN mkdir -p /cache_store /vcl_files
 
-COPY default.vcl /etc/varnish/
+COPY postserve.vcl mbtiles.vcl /vcl_files/
 
 COPY omt-varnish-entrypoint.sh /omt-varnish-entrypoint.sh
 RUN chmod +x /omt-varnish-entrypoint.sh
