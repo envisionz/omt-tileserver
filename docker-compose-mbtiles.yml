@@ -1,0 +1,26 @@
+version: "3"
+
+networks:
+  mbtiles-tileservers:
+
+services:  
+  tileserver:
+    image: ghcr.io/envisionz/ts-gl:main
+    env_file: .env
+    environment:
+      OMT_TILESERVER_DOMAINS: localhost:8282,127.0.0.1:8282
+    volumes:
+      - ./tiles.mbtiles:/data/mbtiles/tiles.mbtiles
+    networks:
+      - mbtiles-tileservers
+    restart: on-failure
+  
+  mbtiles:
+    image: ghcr.io/envisionz/varnish:main
+    env_file: .env
+    environment:
+      OMT_MBTILES: "1"
+    ports:
+      - "127.0.0.1:8282:8080"
+    networks:
+      - mbtiles-tileservers
