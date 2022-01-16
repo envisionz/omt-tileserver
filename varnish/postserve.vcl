@@ -7,8 +7,8 @@ import var;
 import xkey;
 
 backend tileserver {
-  .host = "${tileserver_host}";
-  .port = "${tileserver_port}";
+  .host = "{{tileserver_host}}";
+  .port = "{{tileserver_port}}";
   .probe = {
     .url = "/health";
     .timeout = 1s;
@@ -19,12 +19,12 @@ backend tileserver {
 }
 
 backend postserve {
-  .host = "${postserve_host}";
-  .port = "${postserve_port}";
+  .host = "{{postserve_host}}";
+  .port = "{{postserve_port}}";
 }
 
 acl purgers {
-  "${purge_host}";
+  "{{purge_host}}";
   "localhost";
 }
 
@@ -50,16 +50,16 @@ sub vcl_recv {
 
   unset req.http.cookie;
 
-  if (req.url ~ "${mvt_tile_regex}") {
+  if (req.url ~ "{{mvt_tile_regex}}") {
     set req.backend_hint = postserve;
   } else {
     set req.backend_hint = tileserver;
   }
 
   // Cache tiles and static images
-  if (req.url ~ "${tile_regex}") {
+  if (req.url ~ "{{tile_regex}}") {
     return (hash);
-  } elseif(req.url ~ "${static_regex}") {
+  } elseif(req.url ~ "{{static_regex}}") {
     return (hash);
   } else {
     return (pass);
@@ -78,16 +78,16 @@ sub vcl_backend_response {
 
   // set cache key based on tile coordinate, so all variants can be purged at once
   // Also, provide minimal caching for high zoom levels
-  if (bereq.url ~ "${tile_regex}") {
-    var.set_int("curr_z", std.integer(regsub(bereq.url, "${zl_regex}", "\1"), 18));
+  if (bereq.url ~ "{{tile_regex}}") {
+    var.set_int("curr_z", std.integer(regsub(bereq.url, "{{zl_regex}}", "\1"), 18));
     // High zoom level's won't be sent purge requests, so set a short ttl
     if (var.get_int("curr_z") > var.get_int("max_z")) {
       set beresp.ttl = 30m;
     } else {
-      set beresp.http.xkey = regsub(bereq.url, "${xkey_regex}", "\1");
+      set beresp.http.xkey = regsub(bereq.url, "{{xkey_regex}}", "\1");
       set beresp.ttl = 4w;
     }
-  } elseif (bereq.url ~ "${static_regex}") {
+  } elseif (bereq.url ~ "{{static_regex}}") {
     set beresp.ttl = 1h;
   }
 }
@@ -96,8 +96,8 @@ sub vcl_hash {
   // Cache using only url as a hash.  
   // This means if a.tile/1/1/1/tile.png is accessed, b.tile/1/1/1/tile.png will also be fetch from cache
   // Note, don't hash quey params for tiles
-  if (req.url ~ "${tile_regex}") {
-    hash_data(regsub(req.url, "^(.+${tile_regex}).*$", "\1"));
+  if (req.url ~ "{{tile_regex}}") {
+    hash_data(regsub(req.url, "^(.+{{tile_regex}}).*$", "\1"));
   } else {
     hash_data(req.url);
   }
