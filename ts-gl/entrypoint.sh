@@ -26,12 +26,12 @@ tile_margin=${OMT_TILESERVER_MARGIN:-0}
 
 front_page=${OMT_TILESERVER_FRONT_PAGE:-true}
 
-mb_tiles_file=/data/tiles.mbtiles
+mb_tiles_file=/data/mbtiles/tiles.mbtiles
 
 src_omt_url="$postsrv_host"
 
 if [ -f "$mb_tiles_file" ]; then
-    src_omt_url="mbtiles://{v3}"
+    src_omt_url="mbtiles://tiles.mbtiles"
 fi
 
 cd /data/styles
@@ -78,7 +78,7 @@ jq --arg d "$domains" --arg min "$min_rend" --arg max "$max_rend" --arg tm "$til
      .options.tileMargin = ($tm | tonumber) | 
      .options.paths.root = $p | 
      .options.frontPage = ($f | test("^(true|t|1)$"; "i")) |
-     if $u == "mbtiles://{v3}" then .data += {"omt": {"mbtiles": $mb }} else del(.data) end' \
+     if $u == "mbtiles://tiles.mbtiles" then .data += {"omt": {"mbtiles": $mb }} else del(.data) end' \
     "$tmp_config" > /data/config.json
 rm "$tmp_config"
 
