@@ -39,9 +39,8 @@ sub vcl_backend_response {
 
   // set cache key based on tile coordinate, so all variants can be purged at once
   // Also, provide minimal caching for high zoom levels
-  if (bereq.url ~ "{{tile_regex}}") {{
+  if (bereq.url ~ "{{tile_regex}}") {
     set beresp.ttl = 4w;
-  }
   } elseif (bereq.url ~ "{{static_regex}}") {
     set beresp.ttl = 4w;
   }

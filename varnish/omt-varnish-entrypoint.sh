@@ -30,8 +30,10 @@ else
 fi
 
 if [ -n "$mbtiles" ]; then
+    echo "Using MBTiles configuration"
     cp /vcl_files/mbtiles.vcl /etc/varnish/default.vcl
 else
+    echo "Using full configuration"
     cp /vcl_files/postserve.vcl /etc/varnish/default.vcl
     sed -i \
         -e "s~{{postserve_host}}~${postserve_host}~g" \
@@ -50,6 +52,7 @@ sed -i \
     /etc/varnish/default.vcl || exit 1
 
 if [ -z "$mbtiles" ]; then
+    echo "Waiting to resulve purge-cache hostname"
     # Varnish doesn't like if it can't resolve the purge host
     # on startup.
     until getent ahostsv4 "$purge_host"; do
